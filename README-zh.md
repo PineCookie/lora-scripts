@@ -9,26 +9,26 @@ _✨ 享受 Stable Diffusion 训练！ ✨_
 </div>
 
 <p align="center">
-  <a href="https://github.com/Akegarasu/lora-scripts" style="margin: 2px;">
-    <img alt="GitHub 仓库星标" src="https://img.shields.io/github/stars/Akegarasu/lora-scripts">
+  <a href="https://github.com/PineCookie/lora-scripts" style="margin: 2px;">
+    <img alt="GitHub 仓库星标" src="https://img.shields.io/github/stars/PineCookie/lora-scripts">
   </a>
-  <a href="https://github.com/Akegarasu/lora-scripts" style="margin: 2px;">
-    <img alt="GitHub 仓库分支" src="https://img.shields.io/github/forks/Akegarasu/lora-scripts">
+  <a href="https://github.com/PineCookie/lora-scripts" style="margin: 2px;">
+    <img alt="GitHub 仓库分支" src="https://img.shields.io/github/forks/PineCookie/lora-scripts">
   </a>
-  <a href="https://raw.githubusercontent.com/Akegarasu/lora-scripts/master/LICENSE" style="margin: 2px;">
-    <img src="https://img.shields.io/github/license/Akegarasu/lora-scripts" alt="许可证">
+  <a href="https://raw.githubusercontent.com/PineCookie/lora-scripts/master/LICENSE" style="margin: 2px;">
+    <img src="https://img.shields.io/github/license/PineCookie/lora-scripts" alt="许可证">
   </a>
-  <a href="https://github.com/Akegarasu/lora-scripts/releases" style="margin: 2px;">
-    <img src="https://img.shields.io/github/v/release/Akegarasu/lora-scripts?color=blueviolet&include_prereleases" alt="发布版本">
+  <a href="https://github.com/PineCookie/lora-scripts/releases" style="margin: 2px;">
+    <img src="https://img.shields.io/github/v/release/PineCookie/lora-scripts?color=blueviolet&include_prereleases" alt="发布版本">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Akegarasu/lora-scripts/releases">下载</a>
+  <a href="https://github.com/PineCookie/lora-scripts/releases">下载</a>
   ·
-  <a href="https://github.com/Akegarasu/lora-scripts/blob/main/README.md">文档</a>
+  <a href="https://github.com/PineCookie/lora-scripts/blob/main/README.md">文档</a>
   ·
-  <a href="https://github.com/Akegarasu/lora-scripts/blob/main/README-zh.md">中文README</a>
+  <a href="https://github.com/PineCookie/lora-scripts/blob/main/README-zh.md">中文README</a>
 </p>
 
 LoRA-scripts（又名 SD-Trainer）
@@ -57,7 +57,7 @@ Python 3.12 和 Git
 ### 克隆带子模块的仓库
 
 ```sh
-git clone --recurse-submodules https://github.com/Akegarasu/lora-scripts
+git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 ```
 
 ## ✨ SD-Trainer GUI
