@@ -117,7 +117,7 @@ Schema.intersect([
             cache_text_encoder_outputs_to_disk: Schema.boolean().default(true).description("缓存文本编码器的输出到磁盘"),
             cache_latents: Schema.boolean().default(true).description("缓存图像 latent，缓存 VAE 输出以减少 VRAM 使用"),
             cache_latents_to_disk: Schema.boolean().default(true).description("缓存图像 latent 到磁盘"),
-            attn_mode: Schema.union(["torch", "xformers", "flash", "sdpa"]).default("torch").description("Attention 实现。会覆盖 xformers/sdpa 选项"),
+            attn_mode: Schema.union(["torch", "xformers", "flash", "sdpa"]).default("torch").description("Attention 实现，覆盖 xformers/sdpa 选项。Torch = sdpa"),
             split_attn: Schema.boolean().default(false).description("拆分 attention 计算以降低显存占用。仅在使用 xformers 时需要。"),
             blocks_to_swap: Schema.number().min(0).step(1).description("训练时交换到 CPU 的 block 数量。不能与 cpu/unsloth offload checkpointing 同时使用"),
             cpu_offload_checkpointing: Schema.boolean().default(false).description("将梯度检查点 offload 到 CPU，降低显存但会变慢"),

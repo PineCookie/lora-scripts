@@ -57,6 +57,29 @@ Schema.intersect([
 
     Schema.intersect([
         Schema.object({
+            optimizer_type: Schema.union([
+                "AdamW",
+                "AdamW8bit",
+                "PagedAdamW8bit",
+                "Lion",
+                "Lion8bit",
+                "PagedLion8bit",
+                "SGDNesterov",
+                "SGDNesterov8bit",
+                "DAdaptation",
+                "DAdaptAdam",
+                "DAdaptAdaGrad",
+                "DAdaptAdanIP",
+                "DAdaptLion",
+                "DAdaptSGD",
+                "AdaFactor",
+                "Prodigy",
+                "prodigyplus.ProdigyPlusScheduleFree"
+            ]).default("AdamW8bit").description("优化器设置"),
+            min_snr_gamma: Schema.number().step(0.1).description("最小信噪比伽马值，如果启用推荐为 5"),
+        }),
+
+        Schema.object({
             learning_rate: Schema.string().default("1e-6").description("学习率"),
         }).description("学习率与优化器设置"),
 
@@ -96,29 +119,6 @@ Schema.intersect([
             }),
             Schema.object({}),
         ]),
-
-        Schema.object({
-            optimizer_type: Schema.union([
-                "AdamW",
-                "AdamW8bit",
-                "PagedAdamW8bit",
-                "Lion",
-                "Lion8bit",
-                "PagedLion8bit",
-                "SGDNesterov",
-                "SGDNesterov8bit",
-                "DAdaptation",
-                "DAdaptAdam",
-                "DAdaptAdaGrad",
-                "DAdaptAdanIP",
-                "DAdaptLion",
-                "DAdaptSGD",
-                "AdaFactor",
-                "Prodigy",
-                "prodigyplus.ProdigyPlusScheduleFree"
-            ]).default("AdamW8bit").description("优化器设置"),
-            min_snr_gamma: Schema.number().step(0.1).description("最小信噪比伽马值，如果启用推荐为 5"),
-        }),
 
         Schema.union([
             Schema.object({

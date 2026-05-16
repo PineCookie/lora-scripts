@@ -63,6 +63,7 @@ textarea {
 
 .workspace {
   min-width: 0;
+  min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
 }
@@ -97,6 +98,8 @@ textarea {
 #content {
   padding: 22px;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .panel {
@@ -113,13 +116,57 @@ textarea {
 
 .trainer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 460px;
   gap: 18px;
+  height: calc(100vh - 128px);
+  min-height: 0;
 }
 
 .form-grid {
   display: grid;
   gap: 14px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.form-grid,
+.actions,
+#preview {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+
+.form-grid:hover,
+.form-grid:focus-within,
+.actions:hover,
+.actions:focus-within,
+#preview:hover,
+#preview:focus {
+  scrollbar-color: #98a2b3 transparent;
+}
+
+.form-grid::-webkit-scrollbar,
+.actions::-webkit-scrollbar,
+#preview::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.form-grid::-webkit-scrollbar-thumb,
+.actions::-webkit-scrollbar-thumb,
+#preview::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.form-grid:hover::-webkit-scrollbar-thumb,
+.form-grid:focus-within::-webkit-scrollbar-thumb,
+.actions:hover::-webkit-scrollbar-thumb,
+.actions:focus-within::-webkit-scrollbar-thumb,
+#preview:hover::-webkit-scrollbar-thumb,
+#preview:focus::-webkit-scrollbar-thumb {
+  background: #98a2b3;
 }
 
 .form-section {
@@ -203,11 +250,43 @@ textarea {
 }
 
 .actions {
-  position: sticky;
-  top: 20px;
   align-self: start;
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  max-height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.action-group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid #d9deea;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.action-group h2,
+.config-preview h2 {
+  margin: 0;
+  color: #344054;
+  font-size: 13px;
+}
+
+.action-group h2 {
+  margin-bottom: 2px;
+}
+
+.config-action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
 }
 
 button,
@@ -238,6 +317,32 @@ button.danger {
   color: #a8071a;
 }
 
+#reset-form {
+  background: #fffbeb;
+  border-color: #fbbf24;
+  color: #92400e;
+}
+
+.download-button {
+  background: #ecfeff;
+  border-color: #67e8f9;
+  color: #155e75;
+}
+
+.download-button:hover {
+  border-color: #0891b2;
+}
+
+.import-config-button {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.import-config-button:hover {
+  border-color: #16a34a;
+}
+
 .icon-button {
   flex: 0 0 auto;
 }
@@ -246,18 +351,34 @@ button.danger {
   display: none;
 }
 
+.config-preview {
+  min-width: 0;
+  border: 1px solid #d9deea;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
 #preview {
   margin: 0;
+  margin-top: 8px;
   padding: 12px;
-  overflow: auto;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-height: 58vh;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #101828;
   color: #d7e0ff;
+  font-family: "Cascadia Mono", "Consolas", "SFMono-Regular", Menlo, Monaco, monospace;
   font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .generated-args {
+  min-width: 0;
   border: 1px solid #d9deea;
   border-radius: 8px;
   background: #ffffff;
@@ -273,7 +394,9 @@ button.danger {
   margin: 0;
   white-space: pre-wrap;
   color: #344054;
+  font-family: "Cascadia Mono", "Consolas", "SFMono-Regular", Menlo, Monaco, monospace;
   font-size: 12px;
+  line-height: 1.5;
 }
 
 .task-row {
@@ -325,6 +448,7 @@ button.danger {
   }
 
   .actions {
-    position: static;
+    max-height: none;
+    overflow: visible;
   }
 }

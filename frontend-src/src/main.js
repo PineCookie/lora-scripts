@@ -190,7 +190,12 @@ function flattenSchema(schema) {
       seen.add(name);
       fields.push({ name, schema: field });
     }
-    if (fields.length) groups.push({ title: node.meta.description || inferGroupTitle(fields, fallbackTitle), fields });
+    if (fields.length) {
+      const title = node.meta.description || inferGroupTitle(fields, fallbackTitle);
+      const group = groups.find((item) => item.title === title);
+      if (group) group.fields.push(...fields);
+      else groups.push({ title, fields });
+    }
   }
 
   visit(schema);
@@ -201,7 +206,7 @@ function inferGroupTitle(fields, fallbackTitle = "参数") {
   const names = new Set(fields.map((field) => field.name));
   if (hasAny(names, ["model_train_type", "pretrained_model_name_or_path", "qwen3", "vae", "clip_l", "clip_g", "t5xxl"])) return "训练用模型";
   if (hasAny(names, ["train_data_dir", "resolution", "enable_bucket", "bucket_no_upscale"])) return "数据集设置";
-  if (hasAny(names, ["output_name", "output_dir", "save_model_as", "save_state"])) return "保存设置";
+  if (hasAny(names, ["output_name", "output_dir", "save_model_as", "save_state", "save_last_n_epochs_state"])) return "保存设置";
   if (hasAny(names, ["max_train_epochs", "train_batch_size", "gradient_checkpointing"])) return "训练相关参数";
   if (hasAny(names, ["optimizer_type", "learning_rate", "lr_scheduler", "unet_lr", "text_encoder_lr"])) return "学习率与优化器设置";
   if (hasAny(names, ["prodigy_d0", "prodigyplus_d_coef", "optimizer_args_custom"])) return "优化器专用参数";
@@ -501,18 +506,31 @@ function renderTrainer(route) {
         ${groups.map(renderGroup).join("")}
       </div>
       <aside class="actions">
-        <button type="submit" class="primary">开始训练</button>
-        <button type="button" id="stop-training" class="danger">终止训练</button>
-        <button type="button" id="reset-form">全部重置</button>
-        <button type="button" id="export-config">下载配置 JSON</button>
-        <button type="button" id="export-toml">下载配置 TOML</button>
-        <label class="import-button">导入配置 JSON<input id="import-config" type="file" accept="application/json" /></label>
-        <label class="import-button">导入配置 TOML<input id="import-toml" type="file" accept=".toml,text/plain" /></label>
+        <section class="action-group">
+          <h2>训练</h2>
+          <button type="submit" class="primary">开始训练</button>
+          <button type="button" id="stop-training" class="danger">终止训练</button>
+        </section>
+        <section class="action-group">
+          <h2>配置</h2>
+          <button type="button" id="reset-form">全部重置</button>
+          <div class="config-action-row">
+            <button type="button" id="export-config" class="download-button">下载配置 JSON</button>
+            <label class="import-button import-config-button">导入配置 JSON<input id="import-config" type="file" accept="application/json" /></label>
+          </div>
+          <div class="config-action-row">
+            <button type="button" id="export-toml" class="download-button">下载配置 TOML</button>
+            <label class="import-button import-config-button">导入配置 TOML<input id="import-toml" type="file" accept=".toml,text/plain" /></label>
+          </div>
+        </section>
         <section class="generated-args">
           <h2>优化器参数预览</h2>
           <pre id="generated-args"></pre>
         </section>
-        <pre id="preview"></pre>
+        <section class="config-preview">
+          <h2>TOML 配置预览</h2>
+          <pre id="preview"></pre>
+        </section>
       </aside>
     </form>
   `;
@@ -722,7 +740,7 @@ function readForm(groups) {
 function updatePreview(groups) {
   const config = readForm(groups);
   document.querySelector("#generated-args").textContent = formatGeneratedArgs(config);
-  document.querySelector("#preview").textContent = JSON.stringify(config, null, 2);
+  document.querySelector("#preview").textContent = toToml(config);
 }
 
 function updateVisibility() {
