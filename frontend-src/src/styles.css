@@ -1,8 +1,28 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   font-family: Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
-  background: #f5f7fb;
-  color: #1d2433;
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --border: #d9e0ec;
+  --border-strong: #b8c3d6;
+  --text: #182235;
+  --muted: #667085;
+  --primary: #2f5be7;
+  --primary-dark: #2446c7;
+  --primary-soft: #edf3ff;
+  --danger: #b42318;
+  --danger-soft: #fff1f0;
+  --warning: #92400e;
+  --warning-soft: #fffbeb;
+  --download: #155e75;
+  --download-soft: #ecfeff;
+  --import: #166534;
+  --import-soft: #f0fdf4;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 10px 24px rgba(16, 24, 40, 0.08);
+  background: var(--bg);
+  color: var(--text);
 }
 
 * {
@@ -11,6 +31,7 @@
 
 body {
   margin: 0;
+  background: var(--bg);
 }
 
 a {
@@ -32,8 +53,8 @@ textarea {
 }
 
 .sidebar {
-  border-right: 1px solid #d9deea;
-  background: #ffffff;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
   padding: 18px 14px;
 }
 
@@ -42,6 +63,8 @@ textarea {
   font-weight: 700;
   font-size: 20px;
   margin: 0 8px 18px;
+  color: #111827;
+  letter-spacing: 0;
 }
 
 .sidebar nav {
@@ -53,11 +76,12 @@ textarea {
   border-radius: 6px;
   padding: 9px 10px;
   color: #495266;
+  transition: background 0.16s ease, color 0.16s ease;
 }
 
 .sidebar a.active,
 .sidebar a:hover {
-  background: #edf2ff;
+  background: var(--primary-soft);
   color: #2442a3;
 }
 
@@ -71,12 +95,13 @@ textarea {
 .topbar {
   min-height: 84px;
   padding: 18px 28px;
-  background: #ffffff;
-  border-bottom: 1px solid #d9deea;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .topbar h1 {
@@ -86,13 +111,14 @@ textarea {
 
 .eyebrow {
   margin: 0;
-  color: #667085;
+  color: var(--muted);
   font-size: 13px;
 }
 
 #status {
   color: #2442a3;
   font-size: 14px;
+  text-align: right;
 }
 
 #content {
@@ -103,10 +129,11 @@ textarea {
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #d9deea;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 18px;
+  box-shadow: var(--shadow-sm);
 }
 
 .panel h2 {
@@ -182,7 +209,7 @@ textarea {
 .section-note {
   grid-column: 1 / -1;
   margin: -6px 0 2px;
-  color: #667085;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -198,6 +225,7 @@ textarea {
 .field > span {
   font-size: 13px;
   font-weight: 650;
+  color: #263248;
 }
 
 .field.is-edited {
@@ -218,6 +246,7 @@ textarea {
 .control-row {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 input,
@@ -227,14 +256,56 @@ textarea {
   border: 1px solid #c8d0df;
   border-radius: 6px;
   padding: 8px 10px;
-  background: #ffffff;
-  color: #1d2433;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--border-strong);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(47, 91, 231, 0.14);
+  outline: none;
 }
 
 input[type="checkbox"] {
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex: 0 0 auto;
   width: 18px;
   height: 18px;
+  border: 1.5px solid #94a3b8;
+  border-radius: 5px;
+  padding: 0;
+  background: #f8fafc;
+  box-shadow: inset 0 1px 1px rgba(16, 24, 40, 0.04);
   align-self: center;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:hover {
+  border-color: #64748b;
+  background: #f1f5f9;
+}
+
+input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background: var(--primary);
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.4 3.7 5.8 9.3 2.6 6.1' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 3px rgba(47, 91, 231, 0.16);
 }
 
 textarea {
@@ -244,7 +315,7 @@ textarea {
 
 .hint {
   margin: 0;
-  color: #667085;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -265,10 +336,11 @@ textarea {
   display: grid;
   gap: 8px;
   min-width: 0;
-  border: 1px solid #d9deea;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   padding: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 .action-group h2,
@@ -293,40 +365,64 @@ button,
 .import-button {
   border: 1px solid #c8d0df;
   border-radius: 6px;
-  background: #ffffff;
-  color: #1d2433;
+  background: var(--surface);
+  color: var(--text);
   padding: 9px 12px;
   cursor: pointer;
   text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, color 0.16s ease;
 }
 
 button:hover,
 .import-button:hover {
   border-color: #8da2d6;
+  box-shadow: 0 3px 8px rgba(16, 24, 40, 0.08);
+}
+
+button:focus-visible,
+.import-button:focus-within {
+  outline: 3px solid rgba(47, 91, 231, 0.18);
+  outline-offset: 2px;
 }
 
 button.primary {
-  background: #2f5be7;
-  border-color: #2f5be7;
+  background: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 
+button.primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
 button.danger {
-  background: #fff1f0;
+  background: var(--danger-soft);
   border-color: #ffccc7;
-  color: #a8071a;
+  color: var(--danger);
+}
+
+button.danger:hover {
+  border-color: #f97066;
+  background: #ffe7e4;
 }
 
 #reset-form {
-  background: #fffbeb;
+  background: var(--warning-soft);
   border-color: #fbbf24;
-  color: #92400e;
+  color: var(--warning);
+}
+
+#reset-form:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
 }
 
 .download-button {
-  background: #ecfeff;
+  background: var(--download-soft);
   border-color: #67e8f9;
-  color: #155e75;
+  color: var(--download);
 }
 
 .download-button:hover {
@@ -334,9 +430,9 @@ button.danger {
 }
 
 .import-config-button {
-  background: #f0fdf4;
+  background: var(--import-soft);
   border-color: #86efac;
-  color: #166534;
+  color: var(--import);
 }
 
 .import-config-button:hover {
@@ -353,10 +449,11 @@ button.danger {
 
 .config-preview {
   min-width: 0;
-  border: 1px solid #d9deea;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   padding: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 #preview {
@@ -379,10 +476,11 @@ button.danger {
 
 .generated-args {
   min-width: 0;
-  border: 1px solid #d9deea;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   padding: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 .generated-args h2 {
@@ -409,15 +507,15 @@ button.danger {
 
 .task-row p {
   margin: 4px 0 0;
-  color: #667085;
+  color: var(--muted);
 }
 
 .proxy-frame {
   width: 100%;
   height: calc(100vh - 130px);
-  border: 1px solid #d9deea;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .fatal {
@@ -436,7 +534,7 @@ button.danger {
 
   .sidebar {
     border-right: 0;
-    border-bottom: 1px solid #d9deea;
+    border-bottom: 1px solid var(--border);
   }
 
   .sidebar nav {

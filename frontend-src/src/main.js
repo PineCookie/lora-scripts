@@ -10,12 +10,12 @@ window.__MIKAZUKI__ = {
 const routes = [
   { path: "/", title: "SD-Trainer", view: "home" },
   { path: "/lora/index.html", alias: "/lora/index.md", title: "LoRA 训练", view: "info", schema: null },
-  { path: "/lora/basic.html", alias: "/lora/basic.md", title: "新手（SD1.5）", view: "trainer", schema: "lora-basic" },
-  { path: "/lora/master.html", alias: "/lora/master.md", title: "专家", view: "trainer", schema: "lora-master" },
+  { path: "/lora/master.html", alias: "/lora/master.md", title: "SD/SDXL", view: "trainer", schema: "lora-master" },
   { path: "/lora/flux.html", alias: "/lora/flux.md", title: "Flux", view: "trainer", schema: "flux-lora" },
   { path: "/lora/anima.html", alias: "/lora/anima.md", title: "Anima", view: "trainer", schema: "anima-lora" },
   { path: "/lora/sd3.html", alias: "/lora/sd3.md", title: "SD3.5", view: "trainer", schema: "sd3-lora" },
   { path: "/lora/sdxl.html", alias: "/lora/sdxl.md", title: "SDXL", view: "trainer", schema: "lora-master", defaults: { model_train_type: "sdxl-lora" } },
+  { path: "/lora/basic.html", alias: "/lora/basic.md", title: "SD1.5", view: "trainer", schema: "lora-basic" },
   { path: "/dreambooth/index.html", alias: "/dreambooth/index.md", title: "Dreambooth", view: "trainer", schema: "dreambooth" },
   { path: "/task.html", alias: "/task.md", title: "任务", view: "tasks" },
   { path: "/tensorboard.html", alias: "/tensorboard.md", title: "Tensorboard", view: "proxy", proxy: "/proxy/tensorboard/" },
@@ -442,12 +442,12 @@ function renderShell(route) {
       <a class="brand" href="/">SD-Trainer</a>
       <nav>
         <a href="/lora/index.html">LoRA 训练</a>
-        <a href="/lora/basic.html">新手（SD1.5）</a>
-        <a href="/lora/master.html">专家</a>
+        <a href="/lora/master.html">SD/SDXL</a>
         <a href="/lora/flux.html">Flux</a>
         <a href="/lora/anima.html">Anima</a>
         <a href="/lora/sd3.html">SD3.5</a>
         <a href="/lora/sdxl.html">SDXL</a>
+        <a href="/lora/basic.html">SD1.5</a>
         <a href="/dreambooth/index.html">Dreambooth</a>
         <a href="/task.html">任务</a>
         <a href="/tagger.html">Tagger</a>
