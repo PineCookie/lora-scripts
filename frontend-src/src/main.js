@@ -343,28 +343,7 @@ function normalizeTrainingConfig(config) {
     if (config.dylora_unit !== undefined) config.network_args.push(`unit=${config.dylora_unit}`);
   }
 
-  const optimizerType = String(config.optimizer_type ?? "");
-  if (optimizerType.toLowerCase().startsWith("dadapt")) {
-    if (optimizerType === "DAdaptation" || optimizerType === "DAdaptAdam") {
-      config.optimizer_args.push("decouple=True", "weight_decay=0.01");
-    }
-    config.learning_rate = 1;
-    config.unet_lr = 1;
-    config.text_encoder_lr = 1;
-  } else if (optimizerType.toLowerCase() === "prodigy") {
-    config.optimizer_args.push("decouple=True", "weight_decay=0.01", "use_bias_correction=True");
-    if (config.prodigy_d_coef !== undefined) config.optimizer_args.push(`d_coef=${config.prodigy_d_coef}`);
-    if (config.lr_warmup_steps) config.optimizer_args.push("safeguard_warmup=True");
-    if (config.prodigy_d0) config.optimizer_args.push(`d0=${config.prodigy_d0}`);
-  } else if (optimizerType === "prodigyplus.ProdigyPlusScheduleFree") {
-    config.learning_rate = 1;
-    config.unet_lr = 1;
-    config.text_encoder_lr = 1;
-    config.lr_scheduler = "constant";
-    if (config.prodigyplus_d_coef !== undefined) config.optimizer_args.push(`d_coef=${config.prodigyplus_d_coef}`);
-    if (config.prodigyplus_betas) config.optimizer_args.push(`betas=${config.prodigyplus_betas}`);
-    if (config.prodigyplus_schedulefree_c !== undefined) config.optimizer_args.push(`schedulefree_c=${config.prodigyplus_schedulefree_c}`);
-  }
+  applyOptimizerRuleToConfig(config);
 
   if (config.enable_block_weights) {
     if (config.down_lr_weight !== undefined) config.network_args.push(`down_lr_weight=${config.down_lr_weight}`);
@@ -522,6 +501,7 @@ function renderTrainer(route) {
       </div>
       <aside class="actions">
         <button type="submit" class="primary">开始训练</button>
+        <button type="button" id="stop-training" class="danger">终止训练</button>
         <button type="button" id="reset-form">全部重置</button>
         <button type="button" id="export-config">下载配置 JSON</button>
         <button type="button" id="export-toml">下载配置 TOML</button>
@@ -541,9 +521,13 @@ function renderTrainer(route) {
 }
 
 function renderGroup(group) {
+  const note = group.title === "学习率与优化器设置"
+    ? `<p class="section-note">切换优化器时，部分学习率、调度器和 optimizer_args 会按优化器推荐值自动重置。</p>`
+    : "";
   return `
     <section class="panel form-section">
       <h2>${escapeHtml(group.title)}</h2>
+      ${note}
       ${group.fields.map((field) => renderField(field.name, field.schema)).join("")}
     </section>
   `;
@@ -632,10 +616,12 @@ function visibilityRule(name) {
 function bindForm(groups) {
   const form = document.querySelector("#trainer-form");
   form.addEventListener("input", () => {
+    applyDependentValues();
     updateVisibility();
     updatePreview(groups);
   });
   form.addEventListener("change", () => {
+    applyDependentValues();
     updateVisibility();
     updatePreview(groups);
   });
@@ -660,6 +646,7 @@ function bindForm(groups) {
   });
 
   document.querySelector("#reset-form").addEventListener("click", () => renderTrainer(routeFor(location.pathname)));
+  document.querySelector("#stop-training").addEventListener("click", stopTraining);
   document.querySelector("#export-config").addEventListener("click", () => downloadJson(readForm(groups)));
   document.querySelector("#export-toml").addEventListener("click", () => downloadToml(readForm(groups)));
   document.querySelector("#import-config").addEventListener("change", importConfig);
@@ -677,6 +664,7 @@ function bindForm(groups) {
       }
     });
   }
+  applyDependentValues();
   updateVisibility();
 }
 
@@ -719,6 +707,76 @@ function updateVisibility() {
     const visibleFields = fields.filter((field) => field.style.display !== "none" && !field.hidden);
     section.style.display = visibleFields.length ? "" : "none";
   }
+}
+
+const optimizerRules = [
+  {
+    match: (optimizer) => optimizer.toLowerCase().startsWith("dadapt"),
+    values: {
+      learning_rate: 1,
+      unet_lr: 1,
+      text_encoder_lr: 1,
+    },
+    args: (config, optimizer) =>
+      ["DAdaptation", "DAdaptAdam"].includes(optimizer) ? ["decouple=True", "weight_decay=0.01"] : [],
+  },
+  {
+    match: (optimizer) => optimizer.toLowerCase() === "prodigy",
+    args: (config) => [
+      "decouple=True",
+      "weight_decay=0.01",
+      "use_bias_correction=True",
+      config.prodigy_d_coef !== undefined ? `d_coef=${config.prodigy_d_coef}` : null,
+      config.lr_warmup_steps ? "safeguard_warmup=True" : null,
+      config.prodigy_d0 ? `d0=${config.prodigy_d0}` : null,
+    ],
+  },
+  {
+    match: (optimizer) => ["prodigyplus.ProdigyPlusScheduleFree", "ProdigyPlusScheduleFree"].includes(optimizer),
+    values: {
+      learning_rate: 1,
+      unet_lr: 1,
+      text_encoder_lr: 1,
+      lr_scheduler: "constant",
+    },
+    args: (config) => [
+      config.prodigyplus_d_coef !== undefined ? `d_coef=${config.prodigyplus_d_coef}` : null,
+      config.prodigyplus_betas ? `betas=${config.prodigyplus_betas}` : null,
+      config.prodigyplus_schedulefree_c !== undefined ? `schedulefree_c=${config.prodigyplus_schedulefree_c}` : null,
+    ],
+  },
+];
+
+function optimizerRuleFor(optimizer) {
+  const value = String(optimizer ?? "");
+  return optimizerRules.find((rule) => rule.match(value));
+}
+
+function applyOptimizerRuleToConfig(config) {
+  const optimizer = String(config.optimizer_type ?? "");
+  const rule = optimizerRuleFor(optimizer);
+  if (!rule) return;
+
+  for (const [name, value] of Object.entries(rule.values ?? {})) {
+    config[name] = value;
+  }
+  config.optimizer_args.push(...(rule.args?.(config, optimizer) ?? []).filter(Boolean));
+}
+
+function applyDependentValues() {
+  const optimizer = document.querySelector('[name="optimizer_type"]')?.value;
+  const rule = optimizerRuleFor(optimizer);
+  if (!rule) return;
+
+  for (const [name, value] of Object.entries(rule.values ?? {})) {
+    setFieldValue(name, String(value));
+  }
+}
+
+function setFieldValue(name, value) {
+  const input = document.querySelector(`[name="${CSS.escape(name)}"]`);
+  if (!input || input.value === value) return;
+  input.value = value;
 }
 
 function formatGeneratedArgs(config) {
@@ -886,6 +944,25 @@ async function renderTasks() {
       await api(`/api/tasks/terminate/${encodeURIComponent(button.dataset.terminate)}`);
       renderTasks();
     });
+  }
+}
+
+async function stopTraining() {
+  try {
+    const data = await api("/api/tasks");
+    const runningTasks = (data.tasks ?? []).filter((task) => task.status === "RUNNING");
+    if (!runningTasks.length) {
+      setStatus("当前没有正在运行的训练任务");
+      return;
+    }
+
+    const task = runningTasks[0];
+    if (!confirm(`确定要停止任务 ${task.id} 吗？`)) return;
+
+    await api(`/api/tasks/terminate/${encodeURIComponent(task.id)}`);
+    setStatus(`已停止任务 ${task.id}`);
+  } catch (error) {
+    setStatus(`停止训练失败：${error.message}`);
   }
 }
 

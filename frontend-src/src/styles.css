@@ -132,6 +132,14 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.section-note {
+  grid-column: 1 / -1;
+  margin: -6px 0 2px;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -205,6 +213,12 @@ button.primary {
   background: #2f5be7;
   border-color: #2f5be7;
   color: white;
+}
+
+button.danger {
+  background: #fff1f0;
+  border-color: #ffccc7;
+  color: #a8071a;
 }
 
 .icon-button {
