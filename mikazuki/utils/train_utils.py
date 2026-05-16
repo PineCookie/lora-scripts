@@ -20,10 +20,24 @@ class ModelType(Enum):
     SD3 = 4
     FLUX = 5
     LUMINA = 6
+    ANIMA = 7
     LoRA = 10
 
 
 MODEL_SIGNATURE = [
+    {
+        "type": ModelType.ANIMA,
+        "signature": [
+            "net.x_embedder.proj.1.weight",
+            "net.blocks.0.self_attn.q_proj.weight",
+            "net.final_layer.linear.weight",
+            "net.llm_adapter.blocks.0.self_attn.q_proj.weight",
+            "x_embedder.proj.1.weight",
+            "blocks.0.self_attn.q_proj.weight",
+            "final_layer.linear.weight",
+            "llm_adapter.blocks.0.self_attn.q_proj.weight",
+        ]
+    },
     {
         "type": ModelType.LUMINA,
         "signature": [
@@ -85,6 +99,13 @@ def is_promopt_like(s):
 
 
 def match_model_type_legacy(sig_content: bytes):
+    if (
+        b"net.x_embedder.proj.1.weight" in sig_content
+        or b"x_embedder.proj.1.weight" in sig_content
+        or b"blocks.0.self_attn.q_proj.weight" in sig_content
+    ):
+        return ModelType.ANIMA
+
     if b"model.diffusion_model.double_blocks" in sig_content or b"double_blocks.0.img_attn.norm.query_norm.scale" in sig_content:
         return ModelType.FLUX
 
@@ -117,6 +138,8 @@ def read_safetensors_metadata(path) -> Dict:
 def guess_model_type(path):
     if path.endswith("safetensors"):
         metadata = read_safetensors_metadata(path)
+        if metadata is None:
+            return ModelType.UNKNOWN
         model_keys = "\n".join(metadata.keys())
         for m in MODEL_SIGNATURE:
             if any([k in model_keys for k in m["signature"]]):
@@ -151,8 +174,23 @@ def validate_model(model_name: str, training_type: str = "sd-lora"):
         if model_type == ModelType.UNKNOWN:
             log.error(f"Can't match model type from {model_name}")
 
-        if model_type not in [ModelType.SD15, ModelType.SD2, ModelType.SD3, ModelType.SDXL, ModelType.FLUX, ModelType.LUMINA]:
-            return False, "Pretrained model is not a Stable Diffusion, Flux or Lumina checkpoint / 校验失败：底模不是 Stable Diffusion, Flux 或 Lumina 模型"
+        valid_base_model_types = [
+            ModelType.SD15,
+            ModelType.SD2,
+            ModelType.SD3,
+            ModelType.SDXL,
+            ModelType.FLUX,
+            ModelType.LUMINA,
+            ModelType.ANIMA,
+        ]
+        if model_type not in valid_base_model_types:
+            return False, "Pretrained model is not a Stable Diffusion, Flux, Lumina or Anima checkpoint / 校验失败：底模不是 Stable Diffusion、Flux、Lumina 或 Anima 模型"
+
+        if model_type == ModelType.ANIMA and training_type != "anima-lora":
+            return False, "Pretrained model is Anima, but you are not training with Anima LoRA / 校验失败：预训练模型是 Anima，但当前训练种类不是 Anima LoRA。"
+
+        if training_type == "anima-lora" and model_type != ModelType.ANIMA:
+            return False, "Pretrained model is not Anima, but you are training with Anima LoRA / 校验失败：你选择的是 Anima LoRA 训练，但预训练模型不是 Anima。"
 
         if model_type == ModelType.SDXL and training_type == "sd-lora":
             return False, "Pretrained model is SDXL, but you are training with SD1.5 LoRA / 校验失败：你选择的是 SD1.5 LoRA 训练，但预训练模型是 SDXL。请前往专家模式选择正确的模型种类。"
