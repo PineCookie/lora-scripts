@@ -83,6 +83,9 @@ Schema.intersect([
     // 其他选项
     SHARED_SCHEMAS.OTHER,
 
+    // 完全精度设置
+    SHARED_SCHEMAS.FULL_PRECISION_MODE,
+
     // 速度优化选项
     Schema.object(
         UpdateSchema(SHARED_SCHEMAS.RAW.PRECISION_CACHE_BATCH, {
@@ -91,7 +94,7 @@ Schema.intersect([
             sdpa: Schema.boolean().default(true).description("启用 sdpa"), // 脚本中未明确指定，但通常建议开启
             cache_text_encoder_outputs: Schema.boolean().default(true).description("缓存文本编码器的输出，减少显存使用。使用时需要关闭 shuffle_caption"),
             cache_text_encoder_outputs_to_disk: Schema.boolean().default(true).description("缓存文本编码器的输出到磁盘"),
-        }, ["xformers"])
+        }, ["xformers", "full_fp16", "full_bf16"])
     ).description("速度优化选项"),
 
     // 分布式训练

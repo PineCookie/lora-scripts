@@ -26,6 +26,7 @@ config/presets/test*.toml
 !logs/.keep
 
 tests/
+frontend-src/dist/
 
 huggingface/hub/models*
 huggingface/hub/version_diffusers_cache.txt

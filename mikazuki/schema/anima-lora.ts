@@ -27,7 +27,7 @@ Schema.intersect([
         UpdateSchema(SHARED_SCHEMAS.RAW.DATASET_SETTINGS, {
             resolution: Schema.string().default("1024,1024").description("训练图片分辨率，宽x高。Anima 支持 512x512 到 1536x1536，必须是 64 倍数。"),
             enable_bucket: Schema.boolean().default(true).description("启用 arb 桶以允许非固定宽高比的图片"),
-            min_bucket_reso: Schema.number().default(256).description("arb 桶最小分辨率"),
+            min_bucket_reso: Schema.number().default(512).description("arb 桶最小分辨率"),
             max_bucket_reso: Schema.number().default(2048).description("arb 桶最大边长。Anima 方图建议不超过 1536；如需 2:1 等宽屏图，可提高到 2048 或更高，但显存占用按总像素增长"),
             bucket_reso_steps: Schema.number().default(64).description("arb 桶分辨率划分单位"),
         })
@@ -110,21 +110,22 @@ Schema.intersect([
     Schema.object(
         UpdateSchema(SHARED_SCHEMAS.RAW.PRECISION_CACHE_BATCH, {
             mixed_precision: Schema.union(["no", "fp16", "bf16"]).default("bf16").description("训练混合精度，RTX30系列以后也可以指定 `bf16`"),
-            xformers: Schema.boolean().default(false).description("启用 xformers。Anima 使用 xformers 时需要同时启用 split_attn"),
-            sdpa: Schema.boolean().default(true).description("启用 sdpa"),
+            full_precision: Schema.union(["none", "full_fp16", "full_bf16"]).default("full_bf16").description("完全精度模式。full_fp16 与 full_bf16 不能同时启用"),
+            xformers: Schema.boolean().default(true).description("启用 xformers。Anima 使用 xformers 时需要同时启用 split_attn"),
+            sdpa: Schema.boolean().default(false).description("启用 sdpa"),
             cache_text_encoder_outputs: Schema.boolean().default(true).description("缓存文本编码器的输出，减少显存使用。使用时需要关闭 shuffle_caption，并开启 network_train_unet_only"),
             cache_text_encoder_outputs_to_disk: Schema.boolean().default(true).description("缓存文本编码器的输出到磁盘"),
             cache_latents: Schema.boolean().default(true).description("缓存图像 latent，缓存 VAE 输出以减少 VRAM 使用"),
             cache_latents_to_disk: Schema.boolean().default(true).description("缓存图像 latent 到磁盘"),
-            attn_mode: Schema.union(["torch", "xformers", "flash", "sdpa"]).description("Attention 实现。会覆盖 xformers/sdpa 选项"),
-            split_attn: Schema.boolean().default(false).description("拆分 attention 计算以降低显存占用"),
+            attn_mode: Schema.union(["torch", "xformers", "flash", "sdpa"]).default("xformers").description("Attention 实现。会覆盖 xformers/sdpa 选项"),
+            split_attn: Schema.boolean().default(true).description("拆分 attention 计算以降低显存占用"),
             blocks_to_swap: Schema.number().min(0).step(1).description("训练时交换到 CPU 的 block 数量。不能与 cpu/unsloth offload checkpointing 同时使用"),
             cpu_offload_checkpointing: Schema.boolean().default(false).description("将梯度检查点 offload 到 CPU，降低显存但会变慢"),
             unsloth_offload_checkpointing: Schema.boolean().default(false).description("使用异步 CPU RAM offload 激活值。不能与 cpu_offload_checkpointing 或 blocks_to_swap 同时使用"),
             vae_chunk_size: Schema.number().min(2).step(2).description("VAE 编解码空间分块大小，必须为偶数。不填写则不分块"),
             vae_disable_cache: Schema.boolean().default(false).description("禁用 VAE 内部缓存以降低显存"),
             text_encoder_batch_size: Schema.number().min(1).description("缓存文本编码器输出时的批量大小，不填写则使用数据集 batch size"),
-        }, ["fp8_base", "fp8_base_unet", "no_half_vae", "lowram"])
+        }, ["fp8_base", "fp8_base_unet", "no_half_vae", "lowram", "full_fp16", "full_bf16"])
     ).description("速度优化选项"),
 
     // 分布式训练

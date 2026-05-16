@@ -88,8 +88,11 @@ Schema.intersect([
     // 其他选项
     SHARED_SCHEMAS.OTHER,
 
+    // 完全精度设置
+    SHARED_SCHEMAS.FULL_PRECISION_MODE,
+
     // 速度优化选项
-    Schema.object(SHARED_SCHEMAS.RAW.PRECISION_CACHE_BATCH).description("速度优化选项"),
+    Schema.object(UpdateSchema(SHARED_SCHEMAS.RAW.PRECISION_CACHE_BATCH, {}, ["full_fp16", "full_bf16"])).description("速度优化选项"),
 
     // 分布式训练
     SHARED_SCHEMAS.DISTRIBUTED_TRAINING

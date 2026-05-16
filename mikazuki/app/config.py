@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from mikazuki.log import log
 
+
 class Config:
 
     def __init__(self, path: str):
@@ -44,4 +45,4 @@ class Config:
         self._stored[key] = value
 
 
-app_config = Config(Path(__file__).parents[2].absolute() / "assets" / "config.json")
+app_config = Config(str(Path(__file__).parents[2].absolute() / "assets" / "config.json"))

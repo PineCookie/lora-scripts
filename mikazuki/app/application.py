@@ -14,7 +14,7 @@ from mikazuki.app.config import app_config
 from mikazuki.app.api import load_schemas, load_presets
 from mikazuki.app.api import router as api_router
 # from mikazuki.app.ipc import router as ipc_router
-from mikazuki.app.proxy import router as proxy_router
+from mikazuki.app.proxy import close_proxy_clients, router as proxy_router
 from mikazuki.utils.devices import check_torch_gpu
 
 mimetypes.add_type("application/javascript", ".js")
@@ -46,7 +46,10 @@ async def app_startup():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await app_startup()
-    yield
+    try:
+        yield
+    finally:
+        await close_proxy_clients()
 
 
 app = FastAPI(lifespan=lifespan)

@@ -5,7 +5,7 @@ import re
 from collections import OrderedDict
 from glob import glob
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -73,7 +73,7 @@ def split_str(s: str, separator=',') -> List[str]:
 
 
 def on_interrogate(
-        image: Image,
+        image: Optional[Image.Image],
         batch_input_glob: str,
         batch_input_recursive: bool,
         batch_output_dir: str,

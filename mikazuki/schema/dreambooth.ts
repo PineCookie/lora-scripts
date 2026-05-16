@@ -38,7 +38,7 @@ Schema.intersect([
     }).description("数据集设置"),
 
     Schema.object({
-        output_name: Schema.string().default("aki").description("模型保存名称"),
+        output_name: Schema.string().default("model_name").description("模型保存名称"),
         output_dir: Schema.string().role("filepicker", { type: "folder" }).default("./output").description("模型保存文件夹"),
         save_model_as: Schema.union(["safetensors", "pt", "ckpt"]).default("safetensors").description("模型保存格式"),
         save_precision: Schema.union(["fp16", "float", "bf16"]).default("fp16").description("模型保存精度"),
@@ -114,7 +114,8 @@ Schema.intersect([
                 "DAdaptLion",
                 "DAdaptSGD",
                 "AdaFactor",
-                "Prodigy"
+                "Prodigy",
+                "ProdigyPlusScheduleFree"
             ]).default("AdamW8bit").description("优化器设置"),
             min_snr_gamma: Schema.number().step(0.1).description("最小信噪比伽马值，如果启用推荐为 5"),
         }),
@@ -124,6 +125,12 @@ Schema.intersect([
                 optimizer_type: Schema.const("Prodigy").required(),
                 prodigy_d0: Schema.string(),
                 prodigy_d_coef: Schema.string().default("2.0"),
+            }),
+            Schema.object({
+                optimizer_type: Schema.const("ProdigyPlusScheduleFree").required(),
+                prodigyplus_d_coef: Schema.string().default("1.0").description("Prodigy Plus d_coef。官方默认 1.0，可尝试 2 或更高帮助 LR 增长"),
+                prodigyplus_betas: Schema.string().default("(0.9, 0.99)").description("Prodigy Plus betas，需为 Python tuple 格式，例如 (0.95, 0.99)"),
+                prodigyplus_schedulefree_c: Schema.string().default("0").description("Prodigy Plus schedulefree_c。官方默认 0"),
             }),
             Schema.object({}),
         ]),
@@ -191,9 +198,11 @@ Schema.intersect([
     }).description("高级设置"),
 
     Schema.object({
+        full_precision: Schema.union(["none", "full_fp16", "full_bf16"]).default("none").description("完全精度模式。full_fp16 与 full_bf16 不能同时启用"),
+    }).description("完全精度设置"),
+
+    Schema.object({
         mixed_precision: Schema.union(["no", "fp16", "bf16"]).default("fp16").description("训练混合精度"),
-        full_fp16: Schema.boolean().description("完全使用 FP16 精度"),
-        full_bf16: Schema.boolean().description("完全使用 BF16 精度 仅支持 SDXL"),
         xformers: Schema.boolean().default(true).description("启用 xformers"),
         sdpa: Schema.boolean().description("启用 sdpa"),
         lowram: Schema.boolean().default(false).description("低内存模式 该模式下会将 U-net、文本编码器、VAE 直接加载到显存中"),

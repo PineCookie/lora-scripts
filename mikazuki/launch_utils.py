@@ -7,11 +7,13 @@ import subprocess
 import sys
 import socket
 import sysconfig
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 from typing import List
 from pathlib import Path
 from typing import Optional
 
-import pkg_resources
+from packaging.requirements import InvalidRequirement, Requirement
 
 from mikazuki.log import log
 
@@ -167,34 +169,25 @@ def is_installed(package, friendly: str = None):
             ]   # get only package name if installing from URL
 
         for pkg in pkgs:
-            if '>=' in pkg:
-                pkg_name, pkg_version = [x.strip() for x in pkg.split('>=')]
-            elif '==' in pkg:
-                pkg_name, pkg_version = [x.strip() for x in pkg.split('==')]
-            else:
-                pkg_name, pkg_version = pkg.strip(), None
+            try:
+                requirement = Requirement(pkg)
+                pkg_name = requirement.name
+                specifier = requirement.specifier
+                if requirement.marker is not None and not requirement.marker.evaluate():
+                    continue
+            except InvalidRequirement:
+                pkg_name = pkg.strip()
+                specifier = None
 
-            spec = pkg_resources.working_set.by_key.get(pkg_name, None)
-            if spec is None:
-                spec = pkg_resources.working_set.by_key.get(pkg_name.lower(), None)
-            if spec is None:
-                spec = pkg_resources.working_set.by_key.get(pkg_name.replace('_', '-'), None)
-
-            if spec is not None:
-                version = pkg_resources.get_distribution(pkg_name).version
-                # log.debug(f'Package version found: {pkg_name} {version}')
-
-                if pkg_version is not None:
-                    if '>=' in pkg:
-                        ok = version >= pkg_version
-                    else:
-                        ok = version == pkg_version
-
-                    if not ok:
-                        log.info(f'Package wrong version: {pkg_name} {version} required {pkg_version}')
-                        return False
-            else:
+            try:
+                version = package_version(pkg_name)
+            except PackageNotFoundError:
                 log.warning(f'Package version not found: {pkg_name}')
+                return False
+
+            # log.debug(f'Package version found: {pkg_name} {version}')
+            if specifier and version not in specifier:
+                log.info(f'Package wrong version: {pkg_name} {version} required {specifier}')
                 return False
 
         return True
@@ -203,29 +196,12 @@ def is_installed(package, friendly: str = None):
         return False
 
 
-def validate_requirements(requirements_file: str):
-    with open(requirements_file, 'r', encoding='utf8') as f:
-        lines = [
-            line.strip()
-            for line in f.readlines()
-            if line.strip() != ''
-            and not line.startswith("#")
-            and not (line.startswith("-") and not line.startswith("--index-url "))
-            and line is not None
-            and "# skip_verify" not in line
-        ]
+def sync_project_dependencies():
+    if shutil.which("uv") is None:
+        run_pip("install uv", "uv", live=True)
 
-        index_url = ""
-        for line in lines:
-            if line.startswith("--index-url "):
-                index_url = line.replace("--index-url ", "")
-                continue
-
-            if not is_installed(line):
-                if index_url != "":
-                    run_pip(f"install {line} --index-url {index_url}", line, live=True)
-                else:
-                    run_pip(f"install {line}", line, live=True)
+    run(["uv", "sync", "--project", str(base_dir_path())], desc="Installing dependencies from pyproject.toml",
+        errdesc="Couldn't install dependencies from pyproject.toml", live=True)
 
 
 def setup_windows_bitsandbytes():
@@ -337,7 +313,7 @@ def prepare_environment(disable_auto_mirror: bool = True, prepare_onnxruntime: b
     # if not check_run("mikazuki/scripts/torch_check.py"):
     #     sys.exit(1)
 
-    validate_requirements("requirements.txt")
+    sync_project_dependencies()
     setup_windows_bitsandbytes()
 
     if prepare_onnxruntime:
