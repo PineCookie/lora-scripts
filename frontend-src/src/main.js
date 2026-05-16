@@ -31,6 +31,7 @@ const state = {
   cards: [],
   current: {},
   fields: [],
+  initialFieldValues: new Map(),
   message: "",
 };
 
@@ -508,7 +509,7 @@ function renderTrainer(route) {
         <label class="import-button">导入配置 JSON<input id="import-config" type="file" accept="application/json" /></label>
         <label class="import-button">导入配置 TOML<input id="import-toml" type="file" accept=".toml,text/plain" /></label>
         <section class="generated-args">
-          <h2>生成参数</h2>
+          <h2>优化器参数预览</h2>
           <pre id="generated-args"></pre>
         </section>
         <pre id="preview"></pre>
@@ -615,12 +616,14 @@ function visibilityRule(name) {
 
 function bindForm(groups) {
   const form = document.querySelector("#trainer-form");
-  form.addEventListener("input", () => {
+  form.addEventListener("input", (event) => {
+    updateEditedField(event.target);
     applyDependentValues();
     updateVisibility();
     updatePreview(groups);
   });
-  form.addEventListener("change", () => {
+  form.addEventListener("change", (event) => {
+    updateEditedField(event.target);
     applyDependentValues();
     updateVisibility();
     updatePreview(groups);
@@ -658,6 +661,7 @@ function bindForm(groups) {
         const data = await api(`/api/pick_file?picker_type=${encodeURIComponent(button.dataset.pickType)}`);
         const input = document.querySelector(`[name="${CSS.escape(button.dataset.pick)}"]`);
         input.value = data.path;
+        updateEditedField(input);
         input.dispatchEvent(new Event("input", { bubbles: true }));
       } catch (error) {
         setStatus(error.message);
@@ -666,6 +670,39 @@ function bindForm(groups) {
   }
   applyDependentValues();
   updateVisibility();
+  captureInitialFieldValues(groups);
+}
+
+function captureInitialFieldValues(groups) {
+  state.initialFieldValues = new Map();
+  for (const group of groups) {
+    for (const field of group.fields) {
+      const input = document.querySelector(`[name="${CSS.escape(field.name)}"]`);
+      if (input) state.initialFieldValues.set(field.name, fieldValue(input));
+    }
+  }
+}
+
+function updateEditedField(input) {
+  if (!input?.name || !state.initialFieldValues.has(input.name)) return;
+  const field = input.closest(".field");
+  if (!field) return;
+  field.classList.toggle("is-edited", fieldValue(input) !== state.initialFieldValues.get(input.name));
+}
+
+function updateEditedFields(groups) {
+  for (const group of groups) {
+    for (const field of group.fields) {
+      const input = document.querySelector(`[name="${CSS.escape(field.name)}"]`);
+      if (input) updateEditedField(input);
+    }
+  }
+}
+
+function fieldValue(input) {
+  if (input.type === "checkbox") return String(input.checked);
+  if (input.multiple) return Array.from(input.selectedOptions).map((option) => option.value).join("\n");
+  return input.value;
 }
 
 function readForm(groups) {
@@ -834,6 +871,9 @@ function applyImportedConfig(config) {
     if (input.type === "checkbox") input.checked = Boolean(value);
     else input.value = Array.isArray(value) ? value.join("\n") : value;
   }
+  applyDependentValues();
+  updateVisibility();
+  updateEditedFields(state.fields);
   updatePreview(state.fields);
 }
 

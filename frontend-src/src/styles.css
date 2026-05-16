@@ -144,11 +144,28 @@ textarea {
   display: grid;
   gap: 6px;
   color: #2c3548;
+  border-left: 3px solid transparent;
+  padding-left: 8px;
 }
 
 .field > span {
   font-size: 13px;
   font-weight: 650;
+}
+
+.field.is-edited {
+  border-left-color: #f59e0b;
+}
+
+.field.is-edited > span {
+  color: #92400e;
+}
+
+.field.is-edited input,
+.field.is-edited select,
+.field.is-edited textarea {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.14);
 }
 
 .control-row {
