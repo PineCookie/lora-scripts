@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="https://github.com/Akegarasu/lora-scripts/assets/36563862/3b177f4a-d92a-4da4-85c8-a0d163061a40" width="200" height="200" alt="SD-Trainer" style="border-radius: 25px">
+<img src="assets/logo.svg" width="200" height="200" alt="LoRA Forge" style="border-radius: 25px">
 
-# SD-Trainer
+# LoRA Forge
 
-_✨ Enjoy Stable Diffusion Train！ ✨_
+_✨ Enjoy LoRA training! ✨_
 
 </div>
 
@@ -31,21 +31,16 @@ _✨ Enjoy Stable Diffusion Train！ ✨_
   <a href="https://github.com/PineCookie/lora-scripts/blob/main/README-zh.md">中文README</a>
 </p>
 
-LoRA-scripts (a.k.a SD-Trainer)
+LoRA & Dreambooth training GUI, script presets, and one-click training environment for [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts.git)
 
-LoRA & Dreambooth training GUI & scripts preset & one key training environment for [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts.git)
+**WARNING: This project is mainly maintained for personal use. It aims to continue the easy-to-use UI and workflow from [lora-scripts](https://github.com/Akegarasu/lora-scripts), and may currently contain many bugs. Suggestions and PRs are welcome!**
 
-## ✨NEW: Train WebUI
+## ✨ New: Anima LoRA Training
 
-The **REAL** Stable Diffusion Training Studio. Everything in one WebUI.
-
-Follow the installation guide below to install the GUI, then run `run_gui.ps1`(windows) or `run_gui.sh`(linux) to start the GUI.
-
-![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/d3fcf5ad-fb8f-4e1d-81f9-c903376c19c6)
-
-| Tensorboard | WD 1.4 Tagger | Tag Editor |
-| ------------ | ------------ | ------------ |
-| ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/b2ac5c36-3edf-43a6-9719-cb00b757fc76) | ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/9504fad1-7d77-46a7-a68f-91fbbdbc7407) | ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/4597917b-caa8-4e90-b950-8b01738996f2) |
+- [x] Refactor the UI to support model-specific training parameters, including Anima. Currently Native JS + HTML
+- [x] Use uv to install and manage the environment instead of relying on requirements.txt or legacy install scripts
+- [ ] Support Torch installation for different GPUs
+- [ ] Add missing features from the original frontend
 
 
 # Usage
@@ -60,14 +55,13 @@ Python 3.12 and Git
 git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 ```
 
-## ✨ SD-Trainer GUI
+## ✨ LoRA Forge GUI
 
 ### Windows
 
 #### Installation
 
-Run `install.ps1` to install dependencies from `pyproject.toml` into a uv-managed `.venv`.
-If you are in China mainland, please use `install-cn.ps1`
+Run `install-cn.ps1` to install dependencies from `pyproject.toml` into a uv-managed `.venv`.
 
 #### Train
 
@@ -85,7 +79,7 @@ Run `install.bash` to install dependencies from `pyproject.toml` into a uv-manag
 Run `bash run_gui.sh`, then open [http://127.0.0.1:28000](http://127.0.0.1:28000) in your browser.
 To open the browser automatically, run `python gui.py --open-browser`.
 
-## Legacy training through run script manually
+## Legacy manual training scripts
 
 ### Windows
 
@@ -95,7 +89,7 @@ Run `install.ps1` to install dependencies from `pyproject.toml` into a uv-manage
 
 #### Train
 
-Edit `train.ps1`, and run it.
+Edit `train.ps1`, then run it.
 
 ### Linux
 
@@ -105,17 +99,17 @@ Run `install.bash` to install dependencies from `pyproject.toml` into a uv-manag
 
 #### Train
 
-Training script `train.sh` **will not** activate the environment for you. You should activate it first.
+The training script `train.sh` **will not** activate the environment for you. Activate it first.
 
 ```sh
 source .venv/bin/activate
 ```
 
-Edit `train.sh`, and run it.
+Edit `train.sh`, then run it.
 
 #### TensorBoard
 
-Run `tensorboard.ps1` will start TensorBoard at http://localhost:6006/
+Run `tensorboard.ps1` to start TensorBoard at http://localhost:6006/
 
 ## Program arguments
 
@@ -132,5 +126,9 @@ Run `tensorboard.ps1` will start TensorBoard at http://localhost:6006/
 | `--tensorboard-host`          | str   | "127.0.0.1"   | Host to run TensorBoard                          |
 | `--tensorboard-port`          | int   | 6006          | Port to run TensorBoard                          |
 | `--localization`              | str   |               | Localization settings for the interface          |
-| `--dev`                       | bool  | false         | Developer mode to disale some checks             |
+| `--dev`                       | bool  | false         | Developer mode to disable some checks            |
 | `--open-browser`              | bool  | false         | Open the browser after the server starts         |
+
+## Thanks
+
+This project is based on Akegarasu's original [lora-scripts](https://github.com/Akegarasu/lora-scripts) project. Thanks to Akegarasu and the original contributors for building the foundation.

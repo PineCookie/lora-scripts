@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">LoRA Forge logo</title>
+  <desc id="desc">A rounded square logo with a stylized forge flame and LoRA training path.</desc>
+  <defs>
+    <linearGradient id="flame" x1="74" y1="48" x2="174" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#111827"/>
+  <path d="M130 38c31 35 55 62 55 101 0 43-29 76-64 76-34 0-61-25-61-61 0-28 17-52 40-70-2 23 6 39 24 50 4-33 5-61 6-96Z" fill="url(#flame)"/>
+  <path d="M77 184h103" stroke="#f8fafc" stroke-width="18" stroke-linecap="round"/>
+  <path d="M87 136c27-21 55-21 83 0" fill="none" stroke="#f8fafc" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="87" cy="136" r="11" fill="#f8fafc"/>
+  <circle cx="170" cy="136" r="11" fill="#f8fafc"/>
+</svg>

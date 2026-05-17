@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="https://github.com/Akegarasu/lora-scripts/assets/36563862/3b177f4a-d92a-4da4-85c8-a0d163061a40" width="200" height="200" alt="SD-Trainer" style="border-radius: 25px">
+<img src="assets/logo.svg" width="200" height="200" alt="LoRA Forge" style="border-radius: 25px">
 
-# SD-Trainer
+# LoRA Forge
 
-_✨ 享受 Stable Diffusion 训练！ ✨_
+_✨ 享受 LoRA 训练！ ✨_
 
 </div>
 
@@ -31,22 +31,16 @@ _✨ 享受 Stable Diffusion 训练！ ✨_
   <a href="https://github.com/PineCookie/lora-scripts/blob/main/README-zh.md">中文README</a>
 </p>
 
-LoRA-scripts（又名 SD-Trainer）
+LoRA & Dreambooth 训练图形界面、脚本预设与一键训练环境，用于 [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts.git)
 
-LoRA & Dreambooth 训练图形界面 & 脚本预设 & 一键训练环境，用于 [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts.git)
+**WARNING: 本项目主要为个人使用，目的是延续 [lora-scripts](https://github.com/Akegarasu/lora-scripts) 的易用 UI 和工作流。当前可能存在大量 Bug，欢迎提出意见或 PR！**
 
-## ✨新特性: 训练 WebUI
+## ✨ 新增：Anima LoRA 训练
 
-Stable Diffusion 训练工作台。一切集成于一个 WebUI 中。
-
-按照下面的安装指南安装 GUI，然后运行 `run_gui.ps1`(Windows) 或 `run_gui.sh`(Linux) 来启动 GUI。
-
-![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/d3fcf5ad-fb8f-4e1d-81f9-c903376c19c6)
-
-| Tensorboard | WD 1.4 标签器 | 标签编辑器 |
-| ------------ | ------------ | ------------ |
-| ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/b2ac5c36-3edf-43a6-9719-cb00b757fc76) | ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/9504fad1-7d77-46a7-a68f-91fbbdbc7407) | ![image](https://github.com/Akegarasu/lora-scripts/assets/36563862/4597917b-caa8-4e90-b950-8b01738996f2) |
-
+- [x] 重构界面以支持不同模型的训练参数，包括 Anima。目前为 Native JS + HTML
+- [x] 使用 uv 安装和管理环境，不再依赖 requirements.txt 和旧安装脚本
+- [ ] 支持不同显卡的 Torch 安装
+- [ ] 加入缺失的原前端功能
 
 # 使用方法
 
@@ -60,7 +54,7 @@ Python 3.12 和 Git
 git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 ```
 
-## ✨ SD-Trainer GUI
+## ✨ LoRA Forge GUI
 
 ### Windows
 
@@ -84,63 +78,7 @@ git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 运行 `bash run_gui.sh`，然后在浏览器中打开 [http://127.0.0.1:28000](http://127.0.0.1:28000)。
 如需自动打开浏览器，请运行 `python gui.py --open-browser`。
 
-### Docker
-
-#### 编译镜像
-
-```bash
-# 国内镜像优化版本
-# 其中 akegarasu_lora-scripts:latest 为镜像及其 tag 名，根据镜像托管服务商实际进行修改
-docker build -t akegarasu_lora-scripts:latest -f Dockfile-for-Mainland-China .
-docker push akegarasu_lora-scripts:latest
-```
-
-#### 使用镜像
-
-> 提供一个本人已打包好并推送到 `aliyuncs` 上的镜像，此镜像压缩归档大小约 `10G` 左右，请耐心等待拉取。
-
-```bash
-docker run --gpus all -p 28000:28000 -p 6006:6006 registry.cn-hangzhou.aliyuncs.com/go-to-mirror/akegarasu_lora-scripts:latest 
-```
-
-或者使用 `docker-compose.yaml` 。
-
-```yaml
-services:
-  lora-scripts:
-    container_name: lora-scripts
-    build:
-      context: .
-      dockerfile: Dockerfile-for-Mainland-China
-    image: "registry.cn-hangzhou.aliyuncs.com/go-to-mirror/akegarasu_lora-scripts:latest"
-    ports:
-      - "28000:28000"
-      - "6006:6006"  
-    # 共享本地文件夹（请根据实际修改）
-    #volumes:
-      # - "/data/srv/lora-scripts:/app/lora-scripts"
-      # 共享 comfyui 大模型
-      # - "/data/srv/comfyui/models/checkpoints:/app/lora-scripts/sd-models/comfyui"
-      # 共享 sd-webui 大模型
-      # - "/data/srv/stable-diffusion-webui/models/Stable-diffusion:/app/lora-scripts/sd-models/sd-webui"
-    environment:
-      - HF_HOME=huggingface
-      - PYTHONUTF8=1
-    security_opt:
-      - "label=type:nvidia_container_t"
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['0']
-              capabilities: [gpu]
-```
- 
-关于容器使用 GPU 相关依赖安装问题，请自行搜索查阅资料解决。
-
-## 通过手动运行脚本的传统训练方式
+## 传统手动训练脚本
 
 ### Windows
 
@@ -150,7 +88,7 @@ services:
 
 #### 训练
 
-编辑 `train.ps1`，然后运行它。
+编辑 `train.ps1`，然后运行。
 
 ### Linux
 
@@ -160,15 +98,13 @@ services:
 
 #### 训练
 
-训练
-
-脚本 `train.sh` **不会** 为您激活环境。您应该先激活环境。
+脚本 `train.sh` **不会** 自动激活环境。请先激活环境。
 
 ```sh
 source .venv/bin/activate
 ```
 
-编辑 `train.sh`，然后运行它。
+编辑 `train.sh`，然后运行。
 
 #### TensorBoard
 
@@ -191,3 +127,7 @@ source .venv/bin/activate
 | `--localization`             | str   |              | 界面的本地化设置                                |
 | `--dev`                      | bool  | false        | 开发者模式，用于禁用某些检查                     |
 | `--open-browser`             | bool  | false        | 服务器启动后自动打开浏览器                      |
+
+## 鸣谢
+
+本项目基于 Akegarasu 的原始项目 [lora-scripts](https://github.com/Akegarasu/lora-scripts)。感谢 Akegarasu 和原项目贡献者打下的基础。

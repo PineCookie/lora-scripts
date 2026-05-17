@@ -208,8 +208,8 @@ function inferGroupTitle(fields, fallbackTitle = "参数") {
   if (hasAny(names, ["train_data_dir", "resolution", "enable_bucket", "bucket_no_upscale"])) return "数据集设置";
   if (hasAny(names, ["output_name", "output_dir", "save_model_as", "save_state", "save_last_n_epochs_state"])) return "保存设置";
   if (hasAny(names, ["max_train_epochs", "train_batch_size", "gradient_checkpointing"])) return "训练相关参数";
-  if (hasAny(names, ["optimizer_type", "learning_rate", "lr_scheduler", "unet_lr", "text_encoder_lr"])) return "学习率与优化器设置";
-  if (hasAny(names, ["prodigy_d0", "prodigyplus_d_coef", "optimizer_args_custom"])) return "优化器专用参数";
+  if (hasAny(names, ["optimizer_type", "learning_rate", "lr_scheduler", "lr_scheduler_num_cycles", "unet_lr", "text_encoder_lr", "optimizer_args_custom"])) return "学习率与优化器设置";
+  if (hasAny(names, ["prodigy_d0", "prodigyplus_d_coef"])) return "优化器专用参数";
   if (hasAny(names, ["network_module", "network_dim", "network_alpha", "network_weights"])) return "网络设置";
   if (hasAny(names, ["lycoris_algo", "conv_dim", "conv_alpha", "lokr_factor", "dylora_unit"])) return "网络专用参数";
   if (hasAny(names, ["enable_base_weight", "base_weights", "base_weights_multiplier"])) return "基础权重设置";
@@ -289,6 +289,37 @@ function withFrontendOptimizerFields(groups) {
   return [...groups, { title: "优化器专用参数", fields }];
 }
 
+function withFrontendAnimaNetworkArgsFields(groups, schemaName) {
+  if (schemaName !== "anima-lora") return groups;
+
+  const allNames = new Set(groups.flatMap((group) => group.fields.map((field) => field.name)));
+  const fields = [];
+  if (!allNames.has("network_reg_dims")) {
+    fields.push({
+      name: "network_reg_dims",
+      schema: Schema.string()
+        .default("")
+        .description("Anima 正则 rank 控制，格式：pattern=rank,pattern=rank。例如：.*self_attn.*=8,.*cross_attn.*=4,.*mlp.*=8"),
+    });
+  }
+  if (!allNames.has("network_reg_lrs")) {
+    fields.push({
+      name: "network_reg_lrs",
+      schema: Schema.string()
+        .default("")
+        .description("Anima 正则学习率控制，格式：pattern=lr,pattern=lr。例如：.*self_attn.*=1e-4,.*cross_attn.*=5e-5"),
+    });
+  }
+
+  if (!fields.length) return groups;
+  const networkGroup = groups.find((group) => group.fields.some((field) => field.name === "network_module"));
+  if (networkGroup) {
+    networkGroup.fields.push(...fields);
+    return groups;
+  }
+  return [...groups, { title: "网络设置", fields }];
+}
+
 function defaultFor(field) {
   if (Object.hasOwn(field.meta, "default")) return field.meta.default;
   if (field.type === "boolean") return false;
@@ -337,6 +368,9 @@ function cleanConfig(values, groups) {
 function normalizeTrainingConfig(config) {
   config.network_args ??= [];
   config.optimizer_args ??= [];
+
+  appendNetworkArg(config, "network_reg_dims");
+  appendNetworkArg(config, "network_reg_lrs");
 
   if (config.network_module === "lycoris.kohya") {
     if (config.conv_dim !== undefined) config.network_args.push(`conv_dim=${config.conv_dim}`);
@@ -409,6 +443,8 @@ function normalizeTrainingConfig(config) {
 
   for (const key of [
     "network_args_custom",
+    "network_reg_dims",
+    "network_reg_lrs",
     "optimizer_args_custom",
     "enable_base_weight",
     "enable_block_weights",
@@ -434,6 +470,11 @@ function normalizeTrainingConfig(config) {
 
   if (!config.network_args?.length) delete config.network_args;
   if (!config.optimizer_args?.length) delete config.optimizer_args;
+}
+
+function appendNetworkArg(config, name) {
+  const value = typeof config[name] === "string" ? config[name].trim() : config[name];
+  if (value !== undefined && value !== "") config.network_args.push(`${name}=${value}`);
 }
 
 function renderShell(route) {
@@ -496,7 +537,7 @@ function renderTrainer(route) {
     return;
   }
 
-  const groups = withGpuSelector(withFrontendOptimizerFields(flattenSchema(schema)));
+  const groups = withGpuSelector(withFrontendAnimaNetworkArgsFields(withFrontendOptimizerFields(flattenSchema(schema)), route.schema));
   state.fields = groups;
   state.current = { ...defaultsFrom(groups), ...(route.defaults ?? {}) };
 
@@ -883,7 +924,8 @@ async function importToml(event) {
 }
 
 function applyImportedConfig(config) {
-  for (const [name, value] of Object.entries(config)) {
+  const normalizedConfig = expandImportedNetworkArgs(config);
+  for (const [name, value] of Object.entries(normalizedConfig)) {
     const input = document.querySelector(`[name="${CSS.escape(name)}"]`);
     if (!input) continue;
     if (input.type === "checkbox") input.checked = Boolean(value);
@@ -893,6 +935,25 @@ function applyImportedConfig(config) {
   updateVisibility();
   updateEditedFields(state.fields);
   updatePreview(state.fields);
+}
+
+function expandImportedNetworkArgs(config) {
+  const result = { ...config };
+  if (!Array.isArray(config.network_args)) return result;
+
+  const customArgs = [];
+  for (const arg of config.network_args) {
+    const text = String(arg);
+    const separator = text.indexOf("=");
+    const name = separator >= 0 ? text.slice(0, separator) : text;
+    if (["network_reg_dims", "network_reg_lrs"].includes(name)) {
+      result[name] = separator >= 0 ? text.slice(separator + 1) : "";
+    } else {
+      customArgs.push(text);
+    }
+  }
+  if (customArgs.length) result.network_args_custom = customArgs;
+  return result;
 }
 
 function toToml(config) {
