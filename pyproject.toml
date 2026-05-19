@@ -25,7 +25,7 @@ dependencies = [
     "pytorch-optimizer",
     "schedulefree",
     "safetensors>=0.7.0",
-    "transformers>=5.8.1",
+    "transformers==4.54.1",
     # Scientific/image utilities
     "einops",
     "ftfy",
@@ -38,7 +38,7 @@ dependencies = [
     "sentencepiece>=0.2.1",
     # App/runtime utilities
     "easygui>=0.98.3",
-    "huggingface-hub>=1.15.0",
+    "huggingface-hub>=0.34.0,<1.0",
     "packaging>=26.2",
     "psutil>=7.2.2",
     "requests>=2.34.2",
