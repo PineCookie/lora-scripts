@@ -62,6 +62,14 @@ git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 
 运行 `install-cn.ps1` 将根据 `pyproject.toml` 安装依赖到 uv 管理的 `.venv`。
 
+`flash-attn` 是可选依赖，默认不会安装。如果你有兼容的本地 wheel，请将它放在 Git 忽略的目录中，例如 `wheelhouse/`，并在同步环境时启用可选依赖：
+
+```powershell
+uv sync -U --extra flash-attn --find-links .\wheelhouse --no-build-package flash-attn
+```
+
+`-U` 会让 uv 更新本地 lockfile 以使用该 wheel，`--no-build-package flash-attn` 可以避免 uv 回退到从源码构建 `flash-attn`。
+
 #### 训练
 
 运行 `run_gui.ps1`，然后在浏览器中打开 [http://127.0.0.1:28000](http://127.0.0.1:28000)。
@@ -72,6 +80,14 @@ git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 #### 安装
 
 运行 `install.bash` 将根据 `pyproject.toml` 安装依赖到 uv 管理的 `.venv`。
+
+`flash-attn` 是可选依赖，默认不会安装。如果你有兼容的本地 wheel，请将它放在 Git 忽略的目录中，例如 `wheelhouse/`，并在同步环境时启用可选依赖：
+
+```sh
+uv sync -U --extra flash-attn --find-links ./wheelhouse --no-build-package flash-attn
+```
+
+`-U` 会让 uv 更新本地 lockfile 以使用该 wheel，`--no-build-package flash-attn` 可以避免 uv 回退到从源码构建 `flash-attn`。
 
 #### 训练
 

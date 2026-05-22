@@ -4,6 +4,9 @@
 venv
 .venv
 __pycache__
+*.whl
+wheelhouse/
+uv.lock
 
 output/*
 !output/.keep

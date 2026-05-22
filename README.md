@@ -63,6 +63,14 @@ git clone --recurse-submodules https://github.com/PineCookie/lora-scripts
 
 Run `install-cn.ps1` to install dependencies from `pyproject.toml` into a uv-managed `.venv`.
 
+`flash-attn` is optional and is not installed by default. If you have a compatible local wheel, keep it outside Git (for example in an ignored `wheelhouse/` folder), then include the optional extra during sync:
+
+```powershell
+uv sync -U --extra flash-attn --find-links .\wheelhouse --no-build-package flash-attn
+```
+
+The `-U` flag lets uv update your local lockfile to use the wheel, and `--no-build-package flash-attn` prevents uv from falling back to building `flash-attn` from source.
+
 #### Train
 
 Run `run_gui.ps1`, then open [http://127.0.0.1:28000](http://127.0.0.1:28000) in your browser.
@@ -73,6 +81,14 @@ To open the browser automatically, run `python gui.py --open-browser`.
 #### Installation
 
 Run `install.bash` to install dependencies from `pyproject.toml` into a uv-managed `.venv`.
+
+`flash-attn` is optional and is not installed by default. If you have a compatible local wheel, keep it outside Git (for example in an ignored `wheelhouse/` folder), then include the optional extra during sync:
+
+```sh
+uv sync -U --extra flash-attn --find-links ./wheelhouse --no-build-package flash-attn
+```
+
+The `-U` flag lets uv update your local lockfile to use the wheel, and `--no-build-package flash-attn` prevents uv from falling back to building `flash-attn` from source.
 
 #### Train
 
