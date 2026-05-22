@@ -8,7 +8,7 @@ window.__MIKAZUKI__ = {
 };
 
 const routes = [
-  { path: "/", title: "SD-Trainer", view: "home" },
+  { path: "/", title: "LoRA-Forge", view: "home" },
   { path: "/lora/index.html", alias: "/lora/index.md", title: "LoRA 训练", view: "info", schema: null },
   { path: "/lora/master.html", alias: "/lora/master.md", title: "SD/SDXL", view: "trainer", schema: "lora-master" },
   { path: "/lora/flux.html", alias: "/lora/flux.md", title: "Flux", view: "trainer", schema: "flux-lora" },
@@ -499,7 +499,7 @@ function appendNetworkArg(config, name) {
 function renderShell(route) {
   app.innerHTML = `
     <aside class="sidebar">
-      <a class="brand" href="/">SD-Trainer</a>
+      <a class="brand" href="/">LoRA-Forge</a>
       <nav>
         <a href="/lora/index.html">LoRA 训练</a>
         <a href="/lora/master.html">SD/SDXL</a>

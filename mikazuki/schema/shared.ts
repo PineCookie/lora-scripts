@@ -27,7 +27,7 @@
                 caption_tag_dropout_rate: Schema.number().min(0).step(0.01).description("按逗号分隔的标签来随机丢弃 tag 的概率"),
             },
             PRECISION_CACHE_BATCH: {
-                mixed_precision: Schema.union(["no", "fp16", "bf16"]).default("bf16").description("训练混合精度, RTX30系列以后也可以指定`bf16`"),
+                mixed_precision: Schema.union(["no", "fp16", "bf16"]).default("bf16").description("训练混合精度, RTX 30系列以前可使用`fp16`"),
                 full_fp16: Schema.boolean().description("完全使用 FP16 精度"),
                 full_bf16: Schema.boolean().description("完全使用 BF16 精度"),
                 no_half_vae: Schema.boolean().description("不使用半精度 VAE"),
@@ -96,7 +96,7 @@
                 output_name: Schema.string().default("model_name").description("模型保存名称"),
                 output_dir: Schema.string().role('filepicker', { type: "folder" }).default("./output").description("模型保存文件夹"),
                 save_model_as: Schema.union(["safetensors", "pt", "ckpt"]).default("safetensors").description("模型保存格式"),
-                save_precision: Schema.union(["fp16", "float", "bf16"]).default("fp16").description("模型保存精度"),
+                save_precision: Schema.union(["fp16", "float", "bf16"]).default("bf16").description("模型保存精度"),
                 save_every_n_epochs: Schema.number().default(2).description("每 N epoch（轮）自动保存一次模型"),
                 save_state: Schema.boolean().default(false).description("保存训练状态 配合 `resume` 参数可以继续从某个状态训练"),
             }).description("保存设置"),

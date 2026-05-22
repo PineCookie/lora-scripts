@@ -12,6 +12,7 @@ from importlib.metadata import version as package_version
 from typing import List
 from pathlib import Path
 from typing import Optional
+import tomllib
 
 from packaging.requirements import InvalidRequirement, Requirement
 
@@ -98,8 +99,21 @@ def prepare_sd_scripts(branch: str = "sd3"):
 
 def git_tag(path: str) -> str:
     try:
-        return subprocess.check_output(["git", "-C", path, "describe", "--tags"]).strip().decode("utf-8")
-    except Exception as e:
+        result = subprocess.run(
+            ["git", "-C", path, "describe", "--tags"],
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        return result.stdout.strip()
+    except Exception:
+        pyproject_path = Path(path) / "pyproject.toml"
+        if pyproject_path.exists():
+            try:
+                with pyproject_path.open("rb") as f:
+                    return tomllib.load(f).get("project", {}).get("version", "<none>")
+            except Exception:
+                pass
         return "<none>"
 
 

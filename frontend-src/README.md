@@ -1,6 +1,6 @@
-# SD-Trainer frontend source
+# LoRA-Forge frontend source
 
-This is a small source frontend for the SD-Trainer GUI.
+This is a small source frontend for the LoRA-Forge GUI.
 
 The historical `frontend/` submodule contains generated files only, so this
 directory is the editable source going forward. It reads the backend schemas

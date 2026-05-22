@@ -59,7 +59,7 @@ def run_tag_editor():
 
 
 def launch():
-    log.info("Starting SD-Trainer Mikazuki GUI...")
+    log.info("Starting LoRA-Forge GUI...")
     log.info(f"Base directory: {base_dir_path()}, Working directory: {os.getcwd()}")
     log.info(f"{platform.system()} Python {platform.python_version()} {sys.executable}")
 
@@ -73,7 +73,7 @@ def launch():
         else:
             log.error("port finding fallback error")
 
-    log.info(f"SD-Trainer Version: {git_tag(str(base_dir_path()))}")
+    log.info(f"LoRA-Forge Version: {git_tag(str(base_dir_path()))}")
 
     if args.listen:
         args.host = "0.0.0.0"

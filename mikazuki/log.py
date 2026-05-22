@@ -1,7 +1,7 @@
 import logging
 
 
-log = logging.getLogger('sd-trainer')
+log = logging.getLogger('lora-forge')
 log.setLevel(logging.DEBUG)
 
 try:
