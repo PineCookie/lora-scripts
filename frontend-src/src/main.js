@@ -328,6 +328,25 @@ function defaultFor(field) {
   return "";
 }
 
+function isResolutionField(name) {
+  return name === "resolution";
+}
+
+function formatResolutionForInput(value) {
+  const parsed = parseResolutionValue(value);
+  return parsed ? `${parsed[0]}x${parsed[1]}` : value;
+}
+
+function normalizeResolutionForConfig(value) {
+  const parsed = parseResolutionValue(value);
+  return parsed ? `${parsed[0]},${parsed[1]}` : String(value).trim();
+}
+
+function parseResolutionValue(value) {
+  const match = String(value).trim().match(/^(\d+)\s*(?:[xX×,])\s*(\d+)$/);
+  return match ? [match[1], match[2]] : null;
+}
+
 function defaultsFrom(groups) {
   const values = {};
   for (const group of groups) {
@@ -595,7 +614,8 @@ function renderGroup(group) {
 
 function renderField(name, schema) {
   const id = `field-${name}`;
-  const value = Object.hasOwn(state.current, name) ? state.current[name] : defaultFor(schema);
+  const rawValue = Object.hasOwn(state.current, name) ? state.current[name] : defaultFor(schema);
+  const value = isResolutionField(name) ? formatResolutionForInput(rawValue) : rawValue;
   const options = schemaOptions(schema);
   const description = schema.meta.description ? `<p class="hint">${schema.meta.description}</p>` : "";
   const disabled = schema.meta.disabled ? "disabled" : "";
@@ -772,6 +792,7 @@ function readForm(groups) {
       if (!input) continue;
       if (input.type === "checkbox") values[field.name] = input.checked;
       else if (input.multiple) values[field.name] = Array.from(input.selectedOptions).map((option) => option.value);
+      else if (isResolutionField(field.name)) values[field.name] = normalizeResolutionForConfig(input.value);
       else values[field.name] = input.value;
     }
   }
@@ -929,6 +950,7 @@ function applyImportedConfig(config) {
     const input = document.querySelector(`[name="${CSS.escape(name)}"]`);
     if (!input) continue;
     if (input.type === "checkbox") input.checked = Boolean(value);
+    else if (isResolutionField(name)) input.value = formatResolutionForInput(value);
     else input.value = Array.isArray(value) ? value.join("\n") : value;
   }
   applyDependentValues();
