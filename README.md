@@ -145,6 +145,28 @@ Run `tensorboard.ps1` to start TensorBoard at http://localhost:6006/
 | `--dev`                       | bool  | false         | Developer mode to disable some checks            |
 | `--open-browser`              | bool  | false         | Open the browser after the server starts         |
 
+## Updating sd-scripts
+
+`scripts/sd-scripts` is cloned as its own Git checkout from `kohya-ss/sd-scripts`, not as a parent-repo submodule. The launcher clones it when missing, but it does not auto-update an existing checkout.
+
+To update it to the latest commit on the configured branch:
+
+```powershell
+.\update_sd_scripts.ps1
+```
+
+```sh
+bash update_sd_scripts.sh
+```
+
+The default branch is `sd3`. To update from another branch, pass `--branch`, for example:
+
+```powershell
+.\update_sd_scripts.ps1 --branch main
+```
+
+The updater uses `git pull --ff-only`, so it will stop instead of overwriting local changes.
+
 ## Thanks
 
 This project is based on Akegarasu's original [lora-scripts](https://github.com/Akegarasu/lora-scripts) project. Thanks to Akegarasu and the original contributors for building the foundation.
