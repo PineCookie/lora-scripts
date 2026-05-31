@@ -441,6 +441,15 @@ function normalizeTrainingConfig(config) {
   config.network_args ??= [];
   config.optimizer_args ??= [];
 
+  coerceNumericStrings(config, [
+    "learning_rate",
+    "unet_lr",
+    "text_encoder_lr",
+    "learning_rate_te",
+    "learning_rate_te1",
+    "learning_rate_te2",
+  ]);
+
   appendNetworkArg(config, "network_reg_dims");
   appendNetworkArg(config, "network_reg_lrs");
 
@@ -542,6 +551,15 @@ function normalizeTrainingConfig(config) {
 
   if (!config.network_args?.length) delete config.network_args;
   if (!config.optimizer_args?.length) delete config.optimizer_args;
+}
+
+function coerceNumericStrings(config, names) {
+  for (const name of names) {
+    if (typeof config[name] !== "string") continue;
+    const value = config[name].trim();
+    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value)) continue;
+    config[name] = Number(value);
+  }
 }
 
 function appendNetworkArg(config, name) {

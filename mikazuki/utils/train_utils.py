@@ -290,7 +290,22 @@ def get_total_images(path, recursive=True):
 
 
 def fix_config_types(config: dict):
-    keep_float_params = ["guidance_scale", "sigmoid_scale", "discrete_flow_shift"]
+    keep_float_params = [
+        "learning_rate",
+        "unet_lr",
+        "text_encoder_lr",
+        "learning_rate_te",
+        "learning_rate_te1",
+        "learning_rate_te2",
+        "self_attn_lr",
+        "cross_attn_lr",
+        "mlp_lr",
+        "mod_lr",
+        "llm_adapter_lr",
+        "guidance_scale",
+        "sigmoid_scale",
+        "discrete_flow_shift",
+    ]
     for k in keep_float_params:
-        if k in config:
+        if k in config and config[k] != "":
             config[k] = float(config[k])
